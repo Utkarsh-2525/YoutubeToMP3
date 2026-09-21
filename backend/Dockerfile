@@ -15,23 +15,32 @@ FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
+# Install FFmpeg, curl and unzip
 RUN apt-get update \
     && apt-get install -y \
        ffmpeg \
        curl \
-    && curl -L \
-       https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
-       -o /usr/local/bin/yt-dlp \
-    && chmod +x /usr/local/bin/yt-dlp \
+       unzip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /app/target/*.jar app.jar
+# Install yt-dlp
+RUN curl -L \
+       https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+       -o /usr/local/bin/yt-dlp \
+    && chmod +x /usr/local/bin/yt-dlp
 
-RUN mkdir -p /app/downloads
+# Install Deno
+RUN curl -fsSL https://deno.land/install.sh | sh
+
+ENV PATH="/root/.deno/bin:${PATH}"
 
 ENV YT_DLP_PATH=/usr/local/bin/yt-dlp
 ENV FFMPEG_PATH=/usr/bin/ffmpeg
 ENV DOWNLOAD_DIR=/app/downloads
+
+COPY --from=build /app/target/*.jar app.jar
+
+RUN mkdir -p /app/downloads
 
 EXPOSE 8080
 
