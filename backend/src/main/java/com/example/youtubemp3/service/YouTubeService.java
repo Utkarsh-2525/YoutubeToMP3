@@ -89,8 +89,9 @@ public class YouTubeService {
 
             List<String> command = List.of(
                     ytDlpPath,
+                    "--js-runtimes", "deno",
+                    "--remote-components", "ejs:github",
                     "--no-playlist",
-                    "--restrict-filenames",
                     "-f", "bestaudio/best",
                     "-x",
                     "--audio-format", "mp3",
